@@ -1,3 +1,5 @@
+[![Nuget](https://img.shields.io/nuget/vpre/Observables.Azure.EventHub.svg)](https://www.nuget.org/packages/Observables.Azure.EventHub/)
+
 # Observable Azure EventHub
 
 That is an observable implementation of Azure EventHub based transport.
