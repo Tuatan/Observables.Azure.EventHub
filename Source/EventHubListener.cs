@@ -1,4 +1,4 @@
-﻿namespace Ecs.Azure
+﻿namespace Observables.Azure
 {
     using System;
     using System.Linq;

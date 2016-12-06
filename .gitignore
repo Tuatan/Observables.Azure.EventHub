@@ -1,6 +1,7 @@
 [Oo]bj
 [Bb]in
 TestResults
+packages
 *.user
 *.suo
 *.[Cc]ache
