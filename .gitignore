@@ -1,0 +1,14 @@
+[Oo]bj
+[Bb]in
+TestResults
+*.user
+*.suo
+*.[Cc]ache
+*.bak
+*.ncb
+UpgradeLog*
+_UpgradeReport_Files
+*.psess
+*.vspx
+*.vsp
+*.pfx
