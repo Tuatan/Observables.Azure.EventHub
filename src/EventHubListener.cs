@@ -7,10 +7,10 @@
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Microsoft.ServiceBus.Messaging;
+    using Microsoft.Azure.EventHubs;
 
     /// <summary>
-    /// This type that exposes IoT Event Hub instance as an observable source.
+    /// This type that exposes Azure Event Hub instance as an observable source.
     /// </summary>
     public sealed class EventHubListener : IObservable<EventData>
     {
@@ -22,9 +22,28 @@
 
         private readonly TimeSpan period;
 
-        private EventHubConsumerGroup consumerGroup;
+        private readonly int batchSize;
+
+        private readonly string partitionId;
+
+        private PartitionReceiver receiver;
 
         private readonly IObservable<EventData> source;
+
+        public static IObservable<EventData> Create(
+            string eventHubName,
+            string eventHubConnectionString,
+            string partitionId)
+        {
+            return new EventHubListener(
+                eventHubName,
+                eventHubConnectionString,
+                PartitionReceiver.DefaultConsumerGroupName,
+                partitionId,
+                TimeSpan.FromSeconds(30),
+                10
+            );
+        }
 
         /// <summary>
         /// Creates a new instance of the EventHubsListener using the specified connection string.
@@ -41,7 +60,9 @@
             string eventHubName,
             string eventHubConnectionString,
             string consumerGroupName,
-            TimeSpan pollingPeriod)
+            string partitionId,
+            TimeSpan pollingPeriod,
+            uint batchSize)
         {
             if (eventHubName == null)
             {
@@ -54,12 +75,17 @@
 
             this.eventHubName = eventHubName;
             this.eventHubConnectionString = eventHubConnectionString;
-            this.consumerGroupName = consumerGroupName;
+            this.consumerGroupName = string.IsNullOrEmpty(consumerGroupName)
+                ? PartitionReceiver.DefaultConsumerGroupName
+                : consumerGroupName;
+
             this.period = pollingPeriod;
+            this.batchSize = checked((int)batchSize);
+            this.partitionId = partitionId;
 
             this.source = Observable.Create((Func<IObserver<EventData>, CancellationToken, Task<IDisposable>>)this.CreateStream)
-               .Publish()
-               .RefCount();
+                .Publish()
+                .RefCount();
         }
 
         /// <summary>
@@ -82,19 +108,26 @@
 
         private async Task<IDisposable> CreateStream(IObserver<EventData> observer, CancellationToken cancellationToken)
         {
-            var eventHubClient = EventHubClient.CreateFromConnectionString(
-                this.eventHubConnectionString,
-                this.eventHubName);
+            var connectionStringBuilder = new EventHubsConnectionStringBuilder(this.eventHubConnectionString)
+            {
+                EntityPath = this.eventHubName
+            };
 
-            this.consumerGroup = string.IsNullOrEmpty(this.consumerGroupName)
-                ? eventHubClient.GetDefaultConsumerGroup()
-                : eventHubClient.GetConsumerGroup(this.consumerGroupName);
+            var client = EventHubClient.CreateFromConnectionString(connectionStringBuilder.ToString());
 
-            var receiver = await this.consumerGroup.CreateReceiverAsync("7").ConfigureAwait(false);
+            var runTimeInformation = await client.GetRuntimeInformationAsync().ConfigureAwait(false);
+
+            if (!runTimeInformation.PartitionIds.Contains(this.partitionId))
+            {
+                observer.OnError(new ArgumentException($"Provided partition ID ({this.partitionId}) does not exist on server")); 
+                return Task.FromResult(Disposable.Empty);
+            }
+
+            this.receiver = client.CreateReceiver(this.consumerGroupName, partitionId, PartitionReceiver.EndOfStream);
 
             while (!cancellationToken.IsCancellationRequested)
             {
-                var items = await receiver.ReceiveAsync(10).ConfigureAwait(false);
+                var items = await this.receiver.ReceiveAsync(this.batchSize).ConfigureAwait(false);
 
                 var eventDatas = items as EventData[] ?? items.ToArray();
 
@@ -111,7 +144,9 @@
                 }
             }
 
-            return Disposable.Create(receiver.Close);
+            return new CompositeDisposable(
+                Disposable.Create(this.receiver.Close),
+                Disposable.Create(client.Close));
         }
     }
 }

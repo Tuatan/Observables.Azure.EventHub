@@ -1,10 +1,10 @@
-﻿namespace Observables.Azure
+namespace Observables.Azure
 {
     using System;
     using System.Threading;
     using System.Threading.Tasks;
 
-    using Microsoft.ServiceBus.Messaging;
+    using Microsoft.Azure.EventHubs;
 
     /// <summary>
     /// Exposes Event Hub publications as a sink.
@@ -17,23 +17,28 @@
         /// Creates a new instance of the EventHubsPublisher.
         /// </summary>
         /// <param name="eventHubConnectionString">The connection string to be used.</param>
-        /// <param name="path">The path to the Event Hub.</param>
+        /// <param name="eventHubName">The Event Hub entity path.</param>
         /// <exception cref="ArgumentNullException">Thrown if any of the parameters are null.</exception>
         public EventHubPublisher(
-            string eventHubConnectionString, 
-            string path)
+            string eventHubConnectionString,
+            string eventHubName)
         {
             if (string.IsNullOrWhiteSpace(eventHubConnectionString))
             {
                 throw new ArgumentNullException(nameof(eventHubConnectionString));
             }
 
-            if (string.IsNullOrWhiteSpace(path))
+            if (string.IsNullOrWhiteSpace(eventHubName))
             {
-                throw new ArgumentNullException(nameof(path));
+                throw new ArgumentNullException(nameof(eventHubName));
             }
 
-            this.client = EventHubClient.CreateFromConnectionString(eventHubConnectionString, path);
+            var connectionStringBuilder = new EventHubsConnectionStringBuilder(eventHubConnectionString)
+            {
+                EntityPath = eventHubName
+            };
+
+            this.client = EventHubClient.CreateFromConnectionString(connectionStringBuilder.ToString());
         }
 
         /// <summary>
@@ -42,7 +47,7 @@
         /// <param name="value">The current notification information.</param>
         public void OnNext(EventData value)
         {
-            this.client.Send(value);
+            this.OnNextAsync(value).Wait();
         }
 
         /// <summary>
