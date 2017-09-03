@@ -4,8 +4,17 @@
     <AssemblyName>Observables.Azure.EventHub</AssemblyName>
     <RootNamespace>Observables.Azure.EventHub</RootNamespace>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.0.0</Version>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <Description>Observable implementation of Azure EventHubs based transport.</Description>
+    <PackageLicenseUrl>https://github.com/Tuatan/Observables.Azure.EventHub/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/Tuatan/Observables.Azure.EventHub</PackageProjectUrl>
+    <Authors>Sergey Baranchenkov</Authors>
+    <Company>Sergey Baranchenkov</Company>
+    <PackageTags>Azure EventHub Observable Transport</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Tuatan/Observables.Azure.EventHub.git</RepositoryUrl>
+    <IconUrl>http://sergeysharp.com/images/dotNET.jpg</IconUrl>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.EventHubs" Version="1.0.3" />
