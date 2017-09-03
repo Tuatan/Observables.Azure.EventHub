@@ -9,7 +9,13 @@ That is an observable implementation of Azure EventHubs based transport.
 Exposing an Azure Event Hub instance as a push source:
 
 ```csharp
-new EventHubListener("myEventHub", "connectionString", string.Empty, "PartitionA", TimeSpan.FromSeconds(15), 10).Dump();
+new EventHubListener(
+    "myEventHub", 
+    "connectionString", 
+    string.Empty, 
+    "PartitionA", 
+    TimeSpan.FromSeconds(15), 
+    10).Dump();
 ```
 
 Publish an event to an Azure Event Hub instance:
