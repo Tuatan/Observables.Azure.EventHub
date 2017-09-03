@@ -120,7 +120,7 @@
             if (!runTimeInformation.PartitionIds.Contains(this.partitionId))
             {
                 observer.OnError(new ArgumentException($"Provided partition ID ({this.partitionId}) does not exist on server")); 
-                return Task.FromResult(Disposable.Empty);
+                return await Task.FromResult(Disposable.Empty);
             }
 
             this.receiver = client.CreateReceiver(this.consumerGroupName, partitionId, PartitionReceiver.EndOfStream);

@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netcoreapp1.1;netstandard2.0;net461</TargetFrameworks>
     <AssemblyName>Observables.Azure.EventHub</AssemblyName>
     <RootNamespace>Observables.Azure.EventHub</RootNamespace>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Version>1.0.1</Version>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <Version>1.0.2</Version>
+    <AssemblyVersion>1.0.2.0</AssemblyVersion>
     <Description>Observable implementation of Azure EventHubs based transport.</Description>
     <PackageLicenseUrl>https://github.com/Tuatan/Observables.Azure.EventHub/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/Tuatan/Observables.Azure.EventHub</PackageProjectUrl>
